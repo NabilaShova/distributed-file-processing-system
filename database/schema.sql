@@ -1,0 +1,3 @@
+-- Application schema for the database distributed_processing.
+-- Table definitions are added in Phase 3.
+-- Do not use this file to change Galera membership or existing databases.
