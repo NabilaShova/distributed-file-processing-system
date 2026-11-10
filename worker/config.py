@@ -34,6 +34,6 @@ class WorkerConfig:
             log_level=os.environ.get("LOG_LEVEL", "INFO"),
             database_url=os.environ.get(
                 "DATABASE_URL",
-                "mysql+pymysql://app_user:change-me@127.0.0.1:3306/distributed_processing",
+                "mysql+pymysql://dfps_app:change-me@127.0.0.1:3306/distributed_processing",
             ),
         )

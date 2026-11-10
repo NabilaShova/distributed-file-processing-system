@@ -34,6 +34,6 @@ class CoordinatorConfig:
             chunk_size=_int_env("CHUNK_SIZE", 1000),
             database_url=os.environ.get(
                 "DATABASE_URL",
-                "mysql+pymysql://app_user:change-me@127.0.0.1:3306/distributed_processing",
+                "mysql+pymysql://dfps_app:change-me@127.0.0.1:3306/distributed_processing",
             ),
         )
