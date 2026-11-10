@@ -1,8 +1,6 @@
 # Distributed file processing system
 
-Academic project: a fault-tolerant distributed CSV processor. A coordinator partitions a dataset and sends chunks to worker processes. MariaDB Galera stores job, task, and result metadata.
-
-This repository is at the Phase 2 foundation. Health endpoints and project configuration are in place. Partitioning, scheduling, fault recovery, the dashboard, and benchmarks are later phases.
+A fault-tolerant distributed CSV processor. A coordinator partitions a dataset and sends chunks to worker processes. MariaDB Galera stores job, task, and result metadata.
 
 ## Current layout
 
@@ -15,11 +13,4 @@ This repository is at the Phase 2 foundation. Health endpoints and project confi
 
 ## Local check
 
-Create a virtual environment with Python 3.12, install `requirements.txt`, then run:
-
-```bash
-pytest
-ruff check .
-```
-
-Copy `.env.example` to `.env` before connecting to MariaDB. The example file contains placeholders, not a real password.
+Virtual environment created with Python 3.12
