@@ -4,7 +4,7 @@ A fault-tolerant distributed CSV processor. A coordinator partitions a dataset a
 
 ## Current layout
 
-- `coordinator/` — coordinator process. `GET /health`, `POST /jobs`, `GET /jobs`, and job, result, and worker reads are available. Dispatch to workers arrives in Phase 6.
+- `coordinator/` — coordinator process. Jobs can be uploaded and run across registered workers. `POST /workers` registers a worker, and `POST /jobs/{job_id}/run` dispatches its pending tasks.
 - `worker/` — worker process. `GET /health`, `GET /status`, and `POST /process` are available.
 - `dashboard/` — Streamlit entry point. Monitoring views arrive in Phase 9.
 - `common/` — logging and shared constants.

@@ -26,6 +26,7 @@ from coordinator.partitioner import (
     validate_dataset,
     write_chunks,
 )
+from coordinator.scheduler import JobNotFound, NoWorkers, execute_job, register_worker
 
 logger = logging.getLogger(__name__)
 MAX_CSV_BYTES = 50 * 1024 * 1024
@@ -155,6 +156,41 @@ def create_app(config: CoordinatorConfig | None = None, engine: Engine | None = 
             if worker is None:
                 return jsonify({"error": "Worker not found."}), 404
             return jsonify(worker_detail(worker))
+
+    @app.post("/workers")
+    def add_worker():
+        payload = request.get_json(silent=True)
+        if not isinstance(payload, dict):
+            return jsonify({"error": "Request body must be JSON."}), 400
+        worker_id = payload.get("worker_id")
+        hostname = payload.get("hostname")
+        base_url = payload.get("base_url")
+        names = (worker_id, hostname, base_url)
+        if not all(isinstance(value, str) and value.strip() for value in names):
+            return jsonify({"error": "worker_id, hostname, and base_url are required."}), 400
+        try:
+            return jsonify(register_worker(database_engine, worker_id, hostname, base_url)), 201
+        except SQLAlchemyError:
+            logger.exception("Could not register worker")
+            return jsonify({"error": "The worker could not be stored."}), 500
+
+    @app.post("/jobs/<job_id>/run")
+    def run_job(job_id: str):
+        try:
+            body = execute_job(
+                database_engine,
+                Path(settings.chunks_dir),
+                job_id,
+                settings.request_timeout,
+            )
+        except JobNotFound:
+            return jsonify({"error": "Job not found."}), 404
+        except NoWorkers:
+            return jsonify({"error": "No online worker is registered."}), 409
+        except SQLAlchemyError:
+            logger.exception("Could not run job %s", job_id)
+            return jsonify({"error": "The job could not be run."}), 500
+        return jsonify(body)
 
     return app
 

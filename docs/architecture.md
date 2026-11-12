@@ -12,4 +12,6 @@ The Streamlit dashboard runs on the Windows host and reads the coordinator API.
 
 Phase 4 implements the worker endpoints `GET /health`, `GET /status`, and `POST /process`. A worker returns the sum, valid count, minimum, maximum, missing count, and invalid count for each configured numeric column. Its column average is that column's own sum divided by its own valid count. The coordinator later divides the combined sums by the combined valid counts.
 
-Phase 5 accepts a CSV at `POST /jobs`, checks the configured columns, and writes chunks of the configured size under `data/chunks`. The database stores the job, one task per chunk, and the relative chunk path. It does not store the CSV text. Worker dispatch is Phase 6, so a new job stays `PENDING`.
+Phase 5 accepts a CSV at `POST /jobs`, checks the configured columns, and writes chunk files under `data/chunks`. The database stores the job, one task per chunk, and the relative path.
+
+Phase 6 registers workers with `POST /workers` and dispatches pending tasks with `POST /jobs/{job_id}/run`. The coordinator sends the chunks concurrently. It stores one result per task, then writes the job aggregate. A column average in that aggregate is the total sum divided by the total valid count.

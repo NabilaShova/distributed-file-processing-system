@@ -24,6 +24,7 @@ class CoordinatorConfig:
     chunk_size: int
     database_url: str
     chunks_dir: str = "data/chunks"
+    request_timeout: int = 30
     service_name: str = "coordinator"
 
     @classmethod
@@ -38,4 +39,5 @@ class CoordinatorConfig:
                 "mysql+pymysql://dfps_app:change-me@127.0.0.1:3306/distributed_processing",
             ),
             chunks_dir=os.environ.get("CHUNKS_DIR", "data/chunks"),
+            request_timeout=_int_env("REQUEST_TIMEOUT_SECONDS", 30),
         )
