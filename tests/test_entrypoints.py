@@ -20,18 +20,52 @@ def test_coordinator_health() -> None:
     assert response.get_json() == {"status": "ok", "role": "coordinator"}
 
 
-def test_worker_health_includes_worker_id() -> None:
+def _worker_client():
     config = WorkerConfig(
         host="127.0.0.1",
         port=8001,
         worker_id="node01-worker",
         log_level="WARNING",
-        database_url="mysql+pymysql://app_user:change-me@127.0.0.1:3306/distributed_processing",
+        database_url="mysql+pymysql://dfps_app:change-me@127.0.0.1:3306/distributed_processing",
     )
-    client = create_worker(config).test_client()
-    response = client.get("/health")
+    return create_worker(config, connection_check=lambda _url: True).test_client()
+
+
+def test_worker_health_includes_worker_id() -> None:
+    response = _worker_client().get("/health")
     assert response.status_code == 200
     assert response.get_json()["worker_id"] == "node01-worker"
+
+
+def test_worker_status_reports_availability() -> None:
+    response = _worker_client().get("/status")
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["availability"] == "AVAILABLE"
+    assert body["database_reachable"] is True
+
+
+def test_worker_process_returns_chunk_metrics() -> None:
+    response = _worker_client().post(
+        "/process",
+        json={
+            "task_id": "task-1",
+            "attempt_number": 1,
+            "csv_text": "delay\n10\n20\n",
+            "processing_config": {"numeric_columns": ["delay"]},
+        },
+    )
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["worker_id"] == "node01-worker"
+    assert body["task_id"] == "task-1"
+    assert body["columns"]["delay"]["sum"] == 30.0
+
+
+def test_worker_process_rejects_invalid_csv() -> None:
+    response = _worker_client().post("/process", json={"csv_text": ""})
+    assert response.status_code == 400
+    assert "error" in response.get_json()
 
 
 def test_chunk_size_rejects_text(monkeypatch) -> None:

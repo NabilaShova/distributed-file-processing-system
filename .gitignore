@@ -9,6 +9,8 @@ data/input/*
 data/output/*
 !data/input/.gitkeep
 !data/output/.gitkeep
+data/chunks/*
+!data/chunks/.gitkeep
 logs/
 *.log
 .ruff_cache/

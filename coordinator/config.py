@@ -23,6 +23,7 @@ class CoordinatorConfig:
     log_level: str
     chunk_size: int
     database_url: str
+    chunks_dir: str = "data/chunks"
     service_name: str = "coordinator"
 
     @classmethod
@@ -36,4 +37,5 @@ class CoordinatorConfig:
                 "DATABASE_URL",
                 "mysql+pymysql://dfps_app:change-me@127.0.0.1:3306/distributed_processing",
             ),
+            chunks_dir=os.environ.get("CHUNKS_DIR", "data/chunks"),
         )

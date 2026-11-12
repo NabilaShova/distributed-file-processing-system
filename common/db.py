@@ -10,7 +10,10 @@ from sqlalchemy.orm import Session, sessionmaker
 
 def create_db_engine(database_url: str) -> Engine:
     """Open a database engine. The URL is not written to logs."""
-    return create_engine(database_url, pool_pre_ping=True)
+    connect_args = {}
+    if database_url.startswith("mysql"):
+        connect_args["connect_timeout"] = 3
+    return create_engine(database_url, pool_pre_ping=True, connect_args=connect_args)
 
 
 def create_session_factory(database_url: str) -> sessionmaker[Session]:
